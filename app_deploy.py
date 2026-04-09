@@ -8,7 +8,7 @@ import time
 # API SETUP
 # -------------------------------
 client = OpenAI(
-    api_key="YOUR_API_KEY_HERE",
+    api_key=st.secrets["OPENAI_API_KEY"],
     base_url="https://openrouter.ai/api/v1"
 )
 
