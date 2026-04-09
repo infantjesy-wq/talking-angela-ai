@@ -36,6 +36,19 @@ def detect_emotion(text):
         return "neutral"
 
 # -------------------------------
+# SMART FALLBACK RESPONSE
+# -------------------------------
+def smart_reply(text, emotion):
+    if emotion == "sad":
+        return "I'm here for you 💙 Tell me what happened."
+    elif emotion == "angry":
+        return "I understand you're upset. Let's take it easy 😊"
+    elif emotion == "happy":
+        return "That's great to hear! 😄"
+    else:
+        return f"You said: {text}"
+
+# -------------------------------
 # AVATAR MAP
 # -------------------------------
 avatar_map = {
@@ -43,7 +56,6 @@ avatar_map = {
     "sad": "sad.gif",
     "angry": "angry.gif",
     "neutral": "avatar.gif",
-    "talking": "talking.gif"
 }
 
 # -------------------------------
@@ -95,36 +107,30 @@ if st.button("Send") and user_input:
         time.sleep(1)
 
     # -------------------------------
-    # AI RESPONSE (NO API KEY)
+    # AI RESPONSE (TRY API)
     # -------------------------------
     try:
         response = requests.post(
-            "https://api-inference.huggingface.co/models/google/flan-t5-large",
+            "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium",
             json={"inputs": text},
+            timeout=5
         )
 
         result = response.json()
 
-        if isinstance(result, list):
+        if isinstance(result, list) and "generated_text" in result[0]:
             reply = result[0]["generated_text"]
         else:
-            reply = "Sorry, I couldn't respond right now."
+            reply = smart_reply(text, emotion)
 
     except:
-        reply = "Error connecting to AI service."
+        reply = smart_reply(text, emotion)
 
     # Save assistant message
     st.session_state.messages.append({
         "role": "assistant",
         "content": reply
     })
-
-    # -------------------------------
-    # TALKING ANIMATION
-    # -------------------------------
-    col1, col2, col3 = st.columns([1,2,1])
-    with col2:
-        st.image("talking.gif", width=200)
 
     # -------------------------------
     # VOICE OUTPUT
