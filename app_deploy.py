@@ -11,7 +11,7 @@ client = OpenAI(
     api_key=st.secrets["OPENROUTER_API_KEY"],
     base_url="https://openrouter.ai/api/v1",
     default_headers={
-        "HTTP-Referer": "https://infantjesy-wq/talking-angela-ai.streamlit.app",  # REQUIRED
+        "HTTP-Referer": "https://infantjesy-wq-talking-angela-ai-app-deploy-vhukty.streamlit.app/",  # REQUIRED
         "X-Title": "Talking Angela AI"  # REQUIRED
     }
 )
