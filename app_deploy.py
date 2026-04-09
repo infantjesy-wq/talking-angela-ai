@@ -9,7 +9,11 @@ import time
 # -------------------------------
 client = OpenAI(
     api_key=st.secrets["OPENROUTER_API_KEY"],
-    base_url="https://openrouter.ai/api/v1"
+    base_url="https://openrouter.ai/api/v1",
+    default_headers={
+        "HTTP-Referer": "https://infantjesy-wq/talking-angela-ai.streamlit.app",  # REQUIRED
+        "X-Title": "Talking Angela AI"  # REQUIRED
+    }
 )
 
 st.set_page_config(page_title="Talking Angela AI", layout="centered")
