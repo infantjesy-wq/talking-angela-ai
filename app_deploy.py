@@ -1,20 +1,8 @@
 import streamlit as st
 from gtts import gTTS
-from openai import OpenAI
 from io import BytesIO
 import time
-
-# -------------------------------
-# API SETUP
-# -------------------------------
-client = OpenAI(
-    api_key=st.secrets["OPENROUTER_API_KEY"],
-    base_url="https://openrouter.ai/api/v1",
-    default_headers={
-        "HTTP-Referer": "https://infantjesy-wq-talking-angela-ai-app-deploy-vhukty.streamlit.app/",  # REQUIRED
-        "X-Title": "Talking Angela AI"  # REQUIRED
-    }
-)
+import requests
 
 st.set_page_config(page_title="Talking Angela AI", layout="centered")
 
@@ -59,7 +47,7 @@ avatar_map = {
 }
 
 # -------------------------------
-# SHOW AVATAR (CENTER)
+# SHOW AVATAR
 # -------------------------------
 col1, col2, col3 = st.columns([1,2,1])
 with col2:
@@ -84,7 +72,7 @@ if st.session_state.latest_audio:
     st.audio(st.session_state.latest_audio, format="audio/mp3")
 
 # -------------------------------
-# TEXT INPUT (DEPLOY SAFE)
+# TEXT INPUT
 # -------------------------------
 user_input = st.text_input("Type your message")
 
@@ -102,33 +90,28 @@ if st.button("Send") and user_input:
     emotion = detect_emotion(text)
     st.session_state.emotion = emotion
 
-    # Typing animation
+    # Typing effect
     with st.spinner("🐱 Angela is typing..."):
         time.sleep(1)
 
     # -------------------------------
-    # REAL AI RESPONSE
+    # AI RESPONSE (NO API KEY)
     # -------------------------------
-    system_prompt = f"""
-    You are a cute talking assistant like Angela.
-    User emotion is: {emotion}
+    try:
+        response = requests.post(
+            "https://api-inference.huggingface.co/models/google/flan-t5-large",
+            json={"inputs": text},
+        )
 
-    Respond accordingly:
-    - If sad → be supportive
-    - If angry → calm politely
-    - If happy → be cheerful
-    - Keep responses short
-    """
+        result = response.json()
 
-    response = client.chat.completions.create(
-        model="openai/gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": text}
-        ]
-    )
+        if isinstance(result, list):
+            reply = result[0]["generated_text"]
+        else:
+            reply = "Sorry, I couldn't respond right now."
 
-    reply = response.choices[0].message.content
+    except:
+        reply = "Error connecting to AI service."
 
     # Save assistant message
     st.session_state.messages.append({
@@ -144,9 +127,9 @@ if st.button("Send") and user_input:
         st.image("talking.gif", width=200)
 
     # -------------------------------
-    # VOICE OUTPUT (NO OVERLAP)
+    # VOICE OUTPUT
     # -------------------------------
-    tts = gTTS(text=reply, lang='en', tld='co.in')
+    tts = gTTS(text=reply, lang='en')
 
     st.session_state.latest_audio = None
 
