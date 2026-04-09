@@ -8,8 +8,7 @@ import time
 # API SETUP
 # -------------------------------
 client = OpenAI(
-    api_key=st.secrets["OPENAI_API_KEY"],
-    base_url="https://openrouter.ai/api/v1"
+    api_key=st.secrets["OPENAI_API_KEY"]
 )
 
 st.set_page_config(page_title="Talking Angela AI", layout="centered")
@@ -117,7 +116,7 @@ if st.button("Send") and user_input:
     """
 
     response = client.chat.completions.create(
-        model="openai/gpt-3.5-turbo",
+        model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": text}
